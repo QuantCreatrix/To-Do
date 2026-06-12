@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>to‑do · weekly goals + month countdown</title>
+    <title>to‑do · study timer + weekly goals</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -53,6 +53,12 @@
             font-size: 0.7rem;
             color: #5b6e8c;
         }
+        .stats-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
         .week-progress-card {
             background: white;
             padding: 0.5rem 1rem;
@@ -60,7 +66,7 @@
             box-shadow: 0 2px 6px rgba(0,0,0,0.05);
             min-width: 130px;
         }
-        .countdown-pill {
+        .countdown-pill, .time-left-pill {
             background: white;
             padding: 0.4rem 0.9rem;
             border-radius: 2rem;
@@ -165,7 +171,7 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             position: relative;
             border: 1px solid rgba(0,0,0,0.03);
-            overflow: hidden;  /* fixes progress bar overflow */
+            overflow: hidden;
         }
         .day-card.active {
             border: 2px solid #3b82f6;
@@ -194,7 +200,6 @@
             margin-top: 4px;
             color: #2c5f8a;
         }
-        /* fixed progress bar inside day card - no overflow */
         .day-progress-bar {
             position: absolute;
             bottom: 0;
@@ -227,11 +232,18 @@
             margin-bottom: 1rem;
             border-left: 4px solid #3b82f6;
             padding-left: 0.8rem;
+            gap: 8px;
         }
         .selected-date-title {
             font-size: 1.1rem;
             font-weight: 600;
             color: #1e293b;
+        }
+        .day-stats {
+            display: flex;
+            gap: 10px;
+            align-items: baseline;
+            flex-wrap: wrap;
         }
         .day-progress-sm {
             background: #eef2fa;
@@ -240,10 +252,18 @@
             font-size: 0.7rem;
             font-weight: 500;
         }
+        .total-minutes-badge {
+            background: #e0f2fe;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #0369a1;
+        }
         .tasks-list {
             list-style: none;
             margin: 0.8rem 0 1.2rem;
-            max-height: 300px;
+            max-height: 340px;
             overflow-y: auto;
         }
         .task-item {
@@ -255,20 +275,38 @@
             padding: 10px 12px;
             border-radius: 60px;
             border: 1px solid #e9eef3;
+            flex-wrap: wrap;
+            gap: 8px;
         }
         .task-left {
             display: flex;
             align-items: center;
             gap: 12px;
-            flex: 1;
+            flex: 2;
+            min-width: 150px;
         }
         .task-text {
             font-size: 0.85rem;
             font-weight: 500;
+            word-break: break-word;
         }
         .completed-task .task-text {
             text-decoration: line-through;
             color: #8b9ab0;
+        }
+        .task-minutes-input {
+            width: 70px;
+            padding: 6px 8px;
+            border-radius: 40px;
+            border: 1px solid #cbd5e1;
+            text-align: center;
+            font-size: 0.75rem;
+            font-family: 'Inter', sans-serif;
+            background: white;
+        }
+        .task-minutes-input:focus {
+            outline: none;
+            border-color: #3b82f6;
         }
         .delete-task {
             background: none;
@@ -312,7 +350,7 @@
             font-style: italic;
         }
 
-        /* WEEKLY GOALS SECTION */
+        /* WEEKLY GOALS */
         .weekly-goals-section {
             background: white;
             border-radius: 1.5rem;
@@ -383,7 +421,7 @@
             opacity: 0.6;
         }
 
-        /* RICH NOTES EDITOR */
+        /* RICH NOTES */
         .weekly-notes-section {
             background: white;
             border-radius: 1.5rem;
@@ -465,11 +503,14 @@
             accent-color: #3b82f6;
             cursor: pointer;
         }
-        @media (max-width: 450px) {
+        @media (max-width: 480px) {
             .day-card { min-width: 68px; padding: 0.5rem 0.3rem; }
             .day-number { font-size: 1.2rem; }
             .countdown-number { font-size: 1.1rem; }
-            .header-area { gap: 0.4rem; }
+            .task-item { flex-direction: column; align-items: stretch; border-radius: 1.2rem; }
+            .task-left { justify-content: space-between; }
+            .task-minutes-input { width: 100%; margin-top: 4px; }
+            .stats-row { width: 100%; justify-content: space-between; }
         }
     </style>
 </head>
@@ -478,21 +519,28 @@
     <div class="header-area">
         <div class="title-section">
             <h1><i class="fas fa-check-circle" style="color:#3b82f6;"></i> to-do</h1>
-            <p>ANR · weekly focus</p>
+            <p>ANR · study tracker</p>
         </div>
-        <div class="week-progress-card">
-            <div class="progress-label">
-                <span><i class="fas fa-chart-line"></i> week</span>
-                <span id="weeklyPercentDisplay">0%</span>
+        <div class="stats-row">
+            <div class="week-progress-card">
+                <div class="progress-label">
+                    <span><i class="fas fa-chart-line"></i> week</span>
+                    <span id="weeklyPercentDisplay">0%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-fill" id="weeklyProgressFill" style="width:0%"></div>
+                </div>
             </div>
-            <div class="progress-bar-bg">
-                <div class="progress-fill" id="weeklyProgressFill" style="width:0%"></div>
+            <div class="countdown-pill">
+                <i class="far fa-calendar-alt"></i>
+                <span class="countdown-number" id="daysCountdownNumber">—</span>
+                <span class="countdown-label">days left</span>
             </div>
-        </div>
-        <div class="countdown-pill">
-            <i class="far fa-calendar-alt"></i>
-            <span class="countdown-number" id="daysCountdownNumber">—</span>
-            <span class="countdown-label">days left in month</span>
+            <div class="time-left-pill">
+                <i class="far fa-clock"></i>
+                <span id="hoursLeftToday">—</span>
+                <span class="countdown-label">h left today</span>
+            </div>
         </div>
     </div>
 
@@ -509,11 +557,14 @@
         <div class="calendar-grid" id="calendarGrid"></div>
     </div>
 
-    <!-- daily tasks panel -->
+    <!-- daily tasks panel with total minutes -->
     <div class="todo-panel">
         <div class="panel-header">
             <div class="selected-date-title" id="selectedDayTitle">📅 pick a day</div>
-            <div class="day-progress-sm" id="selectedDayProgressBadge">0%</div>
+            <div class="day-stats">
+                <div class="day-progress-sm" id="selectedDayProgressBadge">0%</div>
+                <div class="total-minutes-badge" id="totalMinutesBadge">⏱️ 0 min</div>
+            </div>
         </div>
         <ul class="tasks-list" id="tasksListContainer">
             <li class="empty-message">tap a day to manage tasks</li>
@@ -524,7 +575,7 @@
         </div>
     </div>
 
-    <!-- WEEKLY GOALS (with add button & list) -->
+    <!-- WEEKLY GOALS -->
     <div class="weekly-goals-section">
         <h3><i class="fas fa-bullseye" style="color:#3b82f6;"></i> Weekly goals</h3>
         <div class="add-goal-form">
@@ -536,7 +587,7 @@
         </ul>
     </div>
 
-    <!-- RICH NOTES SECTION -->
+    <!-- RICH NOTES -->
     <div class="weekly-notes-section">
         <div class="notes-header">
             <h3><i class="fas fa-pen-fancy"></i> Week notes</h3>
@@ -548,11 +599,11 @@
                 <button class="format-btn" data-command="insertOrderedList" title="Numbered list"><i class="fas fa-list-ol"></i></button>
             </div>
         </div>
-        <div id="weeklyNotesEditor" class="notes-editor" contenteditable="true" placeholder="📝 Write your notes here... (bold, lists, etc.)"></div>
+        <div id="weeklyNotesEditor" class="notes-editor" contenteditable="true"></div>
         <div class="weekly-meta-hint"><i class="fas fa-save"></i> auto-saved per week</div>
     </div>
 
-    <footer>✓ tasks + weekly goals & rich notes saved locally</footer>
+    <footer>✓ tasks + minutes tracked · weekly goals & rich notes</footer>
 </div>
 
 <script>
@@ -569,13 +620,21 @@
     let weeklyNotesDB = {};
 
     // ---------- INDIA TIME HELPERS ----------
-    function getTodayInIndia() {
+    function getCurrentISTDate() {
         const now = new Date();
-        const formatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' });
+        const formatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
         const parts = formatter.formatToParts(now);
         const year = parts.find(p => p.type === 'year').value;
         const month = parts.find(p => p.type === 'month').value;
         const day = parts.find(p => p.type === 'day').value;
+        const hour = parseInt(parts.find(p => p.type === 'hour').value);
+        const minute = parseInt(parts.find(p => p.type === 'minute').value);
+        const second = parseInt(parts.find(p => p.type === 'second').value);
+        return { year, month, day, hour, minute, second, dateObj: new Date(`${year}-${month}-${day}T00:00:00`) };
+    }
+
+    function getTodayInIndia() {
+        const { year, month, day } = getCurrentISTDate();
         return new Date(`${year}-${month}-${day}T00:00:00`);
     }
 
@@ -607,13 +666,19 @@
 
     // Countdown: days left in current month (IST)
     function updateDaysLeftInMonth() {
-        const today = getTodayInIndia();
-        const year = today.getFullYear();
-        const month = today.getMonth();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-        const currentDay = today.getDate();
+        const { year, month, day } = getCurrentISTDate();
+        const daysInMonth = new Date(year, parseInt(month), 0).getDate();
+        const currentDay = parseInt(day);
         const daysLeft = daysInMonth - currentDay;
         document.getElementById("daysCountdownNumber").innerText = daysLeft >= 0 ? daysLeft : 0;
+    }
+
+    // Hours left today (IST, from current time to midnight)
+    function updateHoursLeftToday() {
+        const { hour, minute, second } = getCurrentISTDate();
+        const totalMinutesLeft = (23 - hour) * 60 + (59 - minute);
+        const hoursLeft = Math.floor(totalMinutesLeft / 60);
+        document.getElementById("hoursLeftToday").innerText = hoursLeft >= 0 ? hoursLeft : 0;
     }
 
     // Daily tasks helpers
@@ -622,6 +687,11 @@
         if (tasks.length === 0) return 0;
         const completed = tasks.filter(t => t.completed).length;
         return Math.floor((completed / tasks.length) * 100);
+    }
+
+    function getTotalMinutesForDay(dateStr) {
+        const tasks = tasksDB[dateStr] || [];
+        return tasks.reduce((sum, t) => sum + (parseInt(t.minutes) || 0), 0);
     }
 
     function computeWeeklyProgress() {
@@ -642,7 +712,14 @@
 
     function loadTasks() {
         const stored = localStorage.getItem(STORAGE_KEY);
-        tasksDB = stored ? JSON.parse(stored) : {};
+        if (stored) {
+            tasksDB = JSON.parse(stored);
+            for (let date in tasksDB) {
+                tasksDB[date] = tasksDB[date].map(t => ({ ...t, minutes: t.minutes !== undefined ? t.minutes : 0 }));
+            }
+        } else {
+            tasksDB = {};
+        }
         persistTasks();
     }
 
@@ -719,7 +796,7 @@
             `;
             const chk = li.querySelector('.goal-checkbox');
             const del = li.querySelector('.delete-goal');
-            chk.addEventListener('change', (e) => toggleGoalCompletion(goal.id, chk.checked));
+            chk.addEventListener('change', () => toggleGoalCompletion(goal.id, chk.checked));
             del.addEventListener('click', () => deleteGoal(goal.id));
             container.appendChild(li);
         });
@@ -744,9 +821,7 @@
 
     function renderWeeklyNotes() {
         const editor = document.getElementById("weeklyNotesEditor");
-        if (editor) {
-            editor.innerHTML = getCurrentNotesHtml();
-        }
+        if (editor) editor.innerHTML = getCurrentNotesHtml();
     }
 
     function attachNotesAutoSave() {
@@ -757,10 +832,8 @@
         }
     }
 
-    // Toolbar formatting
     function initFormattingToolbar() {
-        const buttons = document.querySelectorAll('.format-btn');
-        buttons.forEach(btn => {
+        document.querySelectorAll('.format-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
                 const command = btn.getAttribute('data-command');
@@ -773,12 +846,25 @@
         });
     }
 
-    // Daily tasks render
+    // Minutes update
+    function updateTaskMinutes(dateStr, taskId, minutesValue) {
+        const tasks = tasksDB[dateStr];
+        if (tasks) {
+            const task = tasks.find(t => t.id == taskId);
+            if (task) {
+                task.minutes = parseInt(minutesValue) || 0;
+                persistTasks();
+                renderCalendar();
+                renderTodoList();
+            }
+        }
+    }
+
+    // Daily tasks render with minutes input
     function renderCalendar() {
         const weekDates = getWeekDatesArray(currentMonday);
         const grid = document.getElementById("calendarGrid");
         grid.innerHTML = "";
-        const todayIST = getTodayInIndia();
         weekDates.forEach(dayDate => {
             const dateStr = formatYMD(dayDate);
             const percent = getDayCompletionPercent(dateStr);
@@ -809,16 +895,20 @@
         if (!selectedDateStr) {
             document.getElementById("selectedDayTitle").innerHTML = "📅 No day";
             document.getElementById("selectedDayProgressBadge").innerHTML = "0%";
+            document.getElementById("totalMinutesBadge").innerHTML = "⏱️ 0 min";
             document.getElementById("tasksListContainer").innerHTML = '<li class="empty-message">tap a day from calendar</li>';
             return;
         }
         const tasks = tasksDB[selectedDateStr] || [];
         const percent = getDayCompletionPercent(selectedDateStr);
+        const totalMins = getTotalMinutesForDay(selectedDateStr);
         const displayDate = new Date(selectedDateStr + "T12:00:00");
         const formatted = displayDate.toLocaleDateString('en-IN', { weekday: 'long', month: 'short', day: 'numeric', timeZone: 'Asia/Kolkata' });
         document.getElementById("selectedDayTitle").innerHTML = `<i class="far fa-calendar-check"></i> ${formatted}`;
         const completedCount = tasks.filter(t=>t.completed).length;
         document.getElementById("selectedDayProgressBadge").innerHTML = `${percent}% (${completedCount}/${tasks.length})`;
+        document.getElementById("totalMinutesBadge").innerHTML = `⏱️ ${totalMins} min`;
+        
         const container = document.getElementById("tasksListContainer");
         if (tasks.length === 0) {
             container.innerHTML = '<li class="empty-message"><i class="far fa-smile-wink"></i> no tasks yet · tap + to add</li>';
@@ -833,10 +923,17 @@
                     <input type="checkbox" class="task-checkbox" data-id="${task.id}" ${task.completed ? 'checked' : ''}>
                     <span class="task-text">${escapeHtml(task.text)}</span>
                 </div>
-                <button class="delete-task" data-id="${task.id}"><i class="fas fa-trash-alt"></i></button>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <input type="number" class="task-minutes-input" value="${task.minutes || 0}" min="0" step="1" placeholder="min" style="width: 70px;">
+                    <button class="delete-task" data-id="${task.id}"><i class="fas fa-trash-alt"></i></button>
+                </div>
             `;
-            li.querySelector('.task-checkbox').addEventListener('change', (e) => toggleTaskCompletion(selectedDateStr, task.id, e.target.checked));
-            li.querySelector('.delete-task').addEventListener('click', () => deleteTaskById(selectedDateStr, task.id));
+            const chk = li.querySelector('.task-checkbox');
+            const minsInput = li.querySelector('.task-minutes-input');
+            const delBtn = li.querySelector('.delete-task');
+            chk.addEventListener('change', () => toggleTaskCompletion(selectedDateStr, task.id, chk.checked));
+            minsInput.addEventListener('change', (e) => updateTaskMinutes(selectedDateStr, task.id, minsInput.value));
+            delBtn.addEventListener('click', () => deleteTaskById(selectedDateStr, task.id));
             container.appendChild(li);
         });
     }
@@ -867,7 +964,12 @@
         const text = input.value.trim();
         if (!text) return;
         if (!tasksDB[selectedDateStr]) tasksDB[selectedDateStr] = [];
-        tasksDB[selectedDateStr].push({ id: Date.now() + Math.random(), text: text, completed: false });
+        tasksDB[selectedDateStr].push({
+            id: Date.now() + Math.random(),
+            text: text,
+            completed: false,
+            minutes: 0
+        });
         persistTasks();
         input.value = "";
         renderCalendar();
@@ -880,11 +982,12 @@
         renderTodoList();
     }
 
-    // Week navigation
+    // Navigation
     function refreshAllWeeklyData() {
         renderWeeklyGoals();
         renderWeeklyNotes();
         updateDaysLeftInMonth();
+        updateHoursLeftToday();
     }
 
     function goPrevWeek() {
@@ -947,6 +1050,12 @@
         attachNotesAutoSave();
         initFormattingToolbar();
         updateDaysLeftInMonth();
+        updateHoursLeftToday();
+        setInterval(() => {
+            updateHoursLeftToday();
+            // also update days left at midnight boundary if needed (simple)
+            updateDaysLeftInMonth();
+        }, 60000); // update every minute
 
         document.getElementById("prevWeekBtn").addEventListener("click", goPrevWeek);
         document.getElementById("nextWeekBtn").addEventListener("click", goNextWeek);
