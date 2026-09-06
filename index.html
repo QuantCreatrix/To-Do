@@ -431,7 +431,7 @@
             opacity: 0.6;
         }
 
-        /* RICH NOTES */
+        /* RICH NOTES - UPDATED WITH SECTIONS */
         .weekly-notes-section {
             background: white;
             border-radius: 1.5rem;
@@ -443,7 +443,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             flex-wrap: wrap;
             gap: 8px;
         }
@@ -457,41 +457,125 @@
             border-left: 3px solid #3b82f6;
             padding-left: 0.6rem;
         }
-        .format-toolbar {
+        .notes-controls {
             display: flex;
             gap: 6px;
-            background: #f1f5f9;
-            padding: 4px 8px;
-            border-radius: 40px;
         }
-        .format-btn {
-            background: white;
+        .notes-controls button {
+            background: #f1f5f9;
             border: none;
-            padding: 4px 8px;
+            padding: 4px 12px;
             border-radius: 30px;
             font-size: 0.7rem;
-            cursor: pointer;
             font-weight: 600;
+            cursor: pointer;
             color: #2c3e66;
         }
-        .format-btn:active { background: #e2e8f0; }
-        .notes-editor {
-            background: #fefefe;
-            border: 1px solid #e2e8f0;
+        .notes-controls button:hover {
+            background: #e2e8f0;
+        }
+        .notes-controls button.danger {
+            color: #b91c1c;
+        }
+        .notes-controls button.danger:hover {
+            background: #fee2e2;
+        }
+        .section-container {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .section-item {
+            background: #fafcff;
             border-radius: 1rem;
-            padding: 12px;
-            min-height: 120px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            border: 1px solid #eef2fc;
+            transition: 0.1s;
+        }
+        .section-item:hover {
+            border-color: #cbd5e1;
+        }
+        .section-title-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .section-title-bar input {
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #1e3a5f;
+            padding: 2px 0;
+            outline: none;
+            flex: 1;
+            border-bottom: 1px solid transparent;
+        }
+        .section-title-bar input:focus {
+            border-bottom-color: #3b82f6;
+        }
+        .section-title-bar .remove-section {
+            background: none;
+            border: none;
+            color: #b91c1c;
+            cursor: pointer;
+            font-size: 0.8rem;
+            opacity: 0.5;
+            padding: 0 6px;
+        }
+        .section-title-bar .remove-section:hover {
+            opacity: 1;
+        }
+        .section-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px;
+            margin: 4px 0 6px;
+            align-items: center;
+        }
+        .section-toolbar button {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            width: 26px;
+            height: 26px;
+            font-size: 0.65rem;
+            cursor: pointer;
+            color: #2c3e66;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .section-toolbar button:hover {
+            background: #f1f5f9;
+        }
+        .section-toolbar .sep {
+            width: 1px;
+            height: 18px;
+            background: #cbd5e1;
+            margin: 0 2px;
+        }
+        .section-editor {
+            background: #fefefe;
+            border: 1px solid transparent;
+            border-radius: 0.8rem;
+            padding: 8px 10px;
+            min-height: 60px;
             font-family: 'Inter', sans-serif;
             font-size: 0.8rem;
-            line-height: 1.4;
+            line-height: 1.5;
             outline: none;
-            overflow-y: auto;
+            transition: 0.1s;
+            color: #1a2634;
         }
-        .notes-editor:focus {
+        .section-editor:focus {
             border-color: #3b82f6;
-            box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
+            background: white;
+            box-shadow: 0 0 0 2px rgba(59,130,246,0.08);
         }
-        .notes-editor ul, .notes-editor ol {
+        .section-editor ul, .section-editor ol {
             padding-left: 1.2rem;
             margin: 0.3rem 0;
         }
@@ -499,7 +583,7 @@
             font-size: 0.6rem;
             color: #8ca3bf;
             text-align: right;
-            margin-top: 0.4rem;
+            margin-top: 0.6rem;
         }
         footer {
             text-align: center;
@@ -639,19 +723,16 @@
         </ul>
     </div>
 
-    <!-- RICH NOTES -->
+    <!-- RICH NOTES WITH SECTIONS -->
     <div class="weekly-notes-section">
         <div class="notes-header">
             <h3><i class="fas fa-pen-fancy"></i> Week notes</h3>
-            <div class="format-toolbar">
-                <button class="format-btn" data-command="bold" title="Bold"><i class="fas fa-bold"></i></button>
-                <button class="format-btn" data-command="italic" title="Italic"><i class="fas fa-italic"></i></button>
-                <button class="format-btn" data-command="underline" title="Underline"><i class="fas fa-underline"></i></button>
-                <button class="format-btn" data-command="insertUnorderedList" title="Bullet list"><i class="fas fa-list-ul"></i></button>
-                <button class="format-btn" data-command="insertOrderedList" title="Numbered list"><i class="fas fa-list-ol"></i></button>
+            <div class="notes-controls">
+                <button id="addSectionBtn"><i class="fas fa-plus"></i> Section</button>
+                <button id="clearSectionsBtn" class="danger"><i class="fas fa-trash-alt"></i> Clear</button>
             </div>
         </div>
-        <div id="weeklyNotesEditor" class="notes-editor" contenteditable="true"></div>
+        <div class="section-container" id="sectionContainer"></div>
         <div class="weekly-meta-hint"><i class="fas fa-save"></i> auto-saved per week</div>
     </div>
 
@@ -662,14 +743,15 @@
     // ---------- STORAGE KEYS ----------
     const STORAGE_KEY = "italic_todo_v2_clean";
     const WEEKLY_GOALS_KEY = "weekly_goals_array_v2";
-    const WEEKLY_NOTES_KEY = "weekly_rich_notes_v2";
+    const WEEKLY_NOTES_SECTIONS_KEY = "weekly_notes_sections_v2"; // new key for sections
 
     let tasksDB = {};
     let currentMonday = null;
     let selectedDateStr = "";
 
     let weeklyGoalsDB = {};
-    let weeklyNotesDB = {};
+    let notesSectionsDB = {}; // { weekKey: [ { id, title, content }, ... ] }
+    let sectionCounter = 0;
 
     // ---------- INDIA TIME HELPERS ----------
     function getCurrentISTDate() {
@@ -850,49 +932,141 @@
         });
     }
 
-    function loadWeeklyNotes() {
-        const stored = localStorage.getItem(WEEKLY_NOTES_KEY);
-        weeklyNotesDB = stored ? JSON.parse(stored) : {};
+    // ---------- NOTES SECTIONS ----------
+    function loadNotesSections() {
+        const stored = localStorage.getItem(WEEKLY_NOTES_SECTIONS_KEY);
+        notesSectionsDB = stored ? JSON.parse(stored) : {};
     }
 
-    function saveWeeklyNotes(htmlContent) {
+    function saveNotesSections() {
+        localStorage.setItem(WEEKLY_NOTES_SECTIONS_KEY, JSON.stringify(notesSectionsDB));
+    }
+
+    function getCurrentSections() {
         const weekKey = getCurrentWeekKey();
-        weeklyNotesDB[weekKey] = htmlContent;
-        localStorage.setItem(WEEKLY_NOTES_KEY, JSON.stringify(weeklyNotesDB));
+        if (!notesSectionsDB[weekKey]) notesSectionsDB[weekKey] = [];
+        return notesSectionsDB[weekKey];
     }
 
-    function getCurrentNotesHtml() {
-        const weekKey = getCurrentWeekKey();
-        return weeklyNotesDB[weekKey] || "<p><br></p>";
-    }
-
-    function renderWeeklyNotes() {
-        const editor = document.getElementById("weeklyNotesEditor");
-        if (editor) editor.innerHTML = getCurrentNotesHtml();
-    }
-
-    function attachNotesAutoSave() {
-        const editor = document.getElementById("weeklyNotesEditor");
-        if (editor) {
-            editor.addEventListener("input", () => saveWeeklyNotes(editor.innerHTML));
-            editor.addEventListener("blur", () => saveWeeklyNotes(editor.innerHTML));
+    function renderSections() {
+        const sections = getCurrentSections();
+        const container = document.getElementById('sectionContainer');
+        if (!container) return;
+        container.innerHTML = '';
+        if (sections.length === 0) {
+            container.innerHTML = '<div style="color:#6a8b9b; padding: 10px 0; font-size:0.8rem; text-align:center;">No sections. Click "Section" to add.</div>';
+            return;
         }
-    }
+        sections.forEach((sec, idx) => {
+            const div = document.createElement('div');
+            div.className = 'section-item';
+            div.dataset.index = idx;
 
-    function initFormattingToolbar() {
-        document.querySelectorAll('.format-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                const command = btn.getAttribute('data-command');
-                if (command) {
-                    document.execCommand(command, false, null);
-                    const editor = document.getElementById("weeklyNotesEditor");
-                    if (editor) saveWeeklyNotes(editor.innerHTML);
-                }
+            // title bar
+            const titleBar = document.createElement('div');
+            titleBar.className = 'section-title-bar';
+            const titleInput = document.createElement('input');
+            titleInput.type = 'text';
+            titleInput.placeholder = 'Section title';
+            titleInput.value = sec.title || '';
+            titleInput.addEventListener('input', function() {
+                sections[idx].title = this.value;
+                saveNotesSections();
             });
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-section';
+            removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+            removeBtn.addEventListener('click', function() {
+                sections.splice(idx, 1);
+                if (sections.length === 0) delete notesSectionsDB[getCurrentWeekKey()];
+                saveNotesSections();
+                renderSections();
+            });
+            titleBar.appendChild(titleInput);
+            titleBar.appendChild(removeBtn);
+            div.appendChild(titleBar);
+
+            // toolbar
+            const toolbar = document.createElement('div');
+            toolbar.className = 'section-toolbar';
+            const cmds = [
+                { cmd: 'bold', icon: '<b>B</b>' },
+                { cmd: 'italic', icon: '<i>I</i>' },
+                { cmd: 'underline', icon: '<u>U</u>' },
+                { sep: true },
+                { cmd: 'insertUnorderedList', icon: '<i class="fas fa-list-ul"></i>' },
+                { cmd: 'insertOrderedList', icon: '<i class="fas fa-list-ol"></i>' },
+                { sep: true },
+                { cmd: 'removeFormat', icon: '<i class="fas fa-eraser"></i>' },
+            ];
+            cmds.forEach(item => {
+                if (item.sep) {
+                    const sep = document.createElement('span');
+                    sep.className = 'sep';
+                    toolbar.appendChild(sep);
+                    return;
+                }
+                const btn = document.createElement('button');
+                btn.innerHTML = item.icon;
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const editor = div.querySelector('.section-editor');
+                    editor.focus();
+                    document.execCommand(item.cmd, false, null);
+                    // auto-save after change
+                    setTimeout(() => {
+                        sections[idx].content = editor.innerHTML;
+                        saveNotesSections();
+                    }, 50);
+                });
+                toolbar.appendChild(btn);
+            });
+            div.appendChild(toolbar);
+
+            // content
+            const editor = document.createElement('div');
+            editor.className = 'section-editor';
+            editor.contentEditable = true;
+            editor.innerHTML = sec.content || '<p><br></p>';
+            editor.addEventListener('input', function() {
+                sections[idx].content = this.innerHTML;
+                saveNotesSections();
+            });
+            div.appendChild(editor);
+            container.appendChild(div);
         });
     }
 
+    function addNewSection() {
+        const sections = getCurrentSections();
+        sections.push({
+            id: ++sectionCounter,
+            title: `Section ${sections.length + 1}`,
+            content: '<p><br></p>'
+        });
+        saveNotesSections();
+        renderSections();
+        // auto-focus the new title
+        const items = document.querySelectorAll('.section-item');
+        if (items.length > 0) {
+            const last = items[items.length - 1];
+            const input = last.querySelector('.section-title-bar input');
+            if (input) setTimeout(() => input.focus(), 50);
+        }
+    }
+
+    function clearAllSections() {
+        const weekKey = getCurrentWeekKey();
+        if (notesSectionsDB[weekKey] && notesSectionsDB[weekKey].length > 0) {
+            if (confirm('Delete all sections for this week?')) {
+                delete notesSectionsDB[weekKey];
+                saveNotesSections();
+                renderSections();
+            }
+        }
+    }
+
+    // ---------- TASK FUNCTIONS ----------
     function updateTaskMinutes(dateStr, taskId, minutesValue) {
         const tasks = tasksDB[dateStr];
         if (tasks) {
@@ -1029,7 +1203,7 @@
 
     function refreshAllWeeklyData() {
         renderWeeklyGoals();
-        renderWeeklyNotes();
+        renderSections();
         updateDaysLeftInMonth();
         updateHoursLeftToday();
     }
@@ -1080,7 +1254,7 @@
     function init() {
         loadTasks();
         loadWeeklyGoals();
-        loadWeeklyNotes();
+        loadNotesSections();
         const todayIST = getTodayInIndia();
         currentMonday = getMonday(todayIST);
         const todayStr = formatYMD(todayIST);
@@ -1089,9 +1263,7 @@
         renderCalendar();
         renderTodoList();
         renderWeeklyGoals();
-        renderWeeklyNotes();
-        attachNotesAutoSave();
-        initFormattingToolbar();
+        renderSections();
         updateDaysLeftInMonth();
         updateHoursLeftToday();
         setInterval(() => {
@@ -1116,6 +1288,8 @@
                 input.value = "";
             }
         });
+        document.getElementById("addSectionBtn").addEventListener("click", addNewSection);
+        document.getElementById("clearSectionsBtn").addEventListener("click", clearAllSections);
     }
     init();
 </script>
